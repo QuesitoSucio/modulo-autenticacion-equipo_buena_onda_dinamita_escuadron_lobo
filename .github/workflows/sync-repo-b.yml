@@ -1,9 +1,9 @@
 name: Sync repo B into A
 
 on:
-  workflow_dispatch:     # para ejecutar manualmente
+  workflow_dispatch:
   schedule:
-    - cron: '0 3 * * *'  # opcional: corre todos los días a las 03:00 UTC
+    - cron: '0 3 * * *'
 
 permissions:
   contents: write
@@ -16,27 +16,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
 
-      - name: Checkout repo B
-        uses: actions/checkout@v4
-        with:
-          repository: EquipoDinamitaBuenaMaravilla/demo-repository
-          path: temp-b
-          fetch-depth: 1
+      - name: Clone repo B
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git clone --depth=1 https://$GITHUB_ACTOR:${{ secrets.REPO_B_PAT }}@github.com/EquipoDinamitaBuenaMaravilla/namas1.git temp-b
 
       - name: Copy files into carpeta
         run: |
-          mkdir -p libs/demo-repository
-          rsync -av --delete --exclude='.git' --exclude='.github/workflows' temp-b/ libs/demo-repository/
+          mkdir -p libs/namas1
+          rsync -av --delete --exclude='.git' --exclude='.github/workflows' temp-b/ libs/namas1/
 
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add libs/demo-repository
+          git add libs/namas1
           if ! git diff --staged --quiet; then
-            git commit -m "Sync demo-repository -> libs/demo-repository [ci skip]" || true
+            git commit -m "Sync namas1 -> libs/namas1 [ci skip]" || true
             git push origin HEAD:main
           else
             echo "No hay cambios para commitear."
+
