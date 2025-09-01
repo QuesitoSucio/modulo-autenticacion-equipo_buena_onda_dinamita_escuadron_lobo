@@ -1,7 +1,7 @@
 name: Sync repo B into A
 
 on:
-  workflow_dispatch:     # para poder ejecutarlo manualmente desde Actions
+  workflow_dispatch:     # para ejecutar manualmente
   schedule:
     - cron: '0 3 * * *'  # opcional: corre todos los días a las 03:00 UTC
 
@@ -37,4 +37,3 @@ jobs:
             git push origin HEAD:main
           else
             echo "No hay cambios para commitear."
-          fi
