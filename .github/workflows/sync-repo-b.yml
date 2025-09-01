@@ -18,9 +18,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Clone repo B
-        run: |
-          git clone --depth=1 https://github.com/EquipoDinamitaBuenaMaravilla/demo-repository.git temp-b
+      - name: Checkout repo B
+        uses: actions/checkout@v4
+        with:
+          repository: EquipoDinamitaBuenaMaravilla/demo-repository
+          path: temp-b
+          fetch-depth: 1
 
       - name: Copy files into carpeta
         run: |
