@@ -1,0 +1,40 @@
+name: Sync repo B into A
+
+on:
+  workflow_dispatch:     # para poder ejecutarlo manualmente desde Actions
+  schedule:
+    - cron: '0 3 * * *'  # opcional: corre todos los días a las 03:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo A
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Clone repo B
+        run: |
+          git clone --depth=1 https://github.com/EquipoDinamitaBuenaMaravilla/demo-repository.git temp-b
+
+      - name: Copy files into carpeta
+        run: |
+          mkdir -p libs/demo-repository
+          rsync -av --delete --exclude='.git' --exclude='.github/workflows' temp-b/ libs/demo-repository/
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add libs/demo-repository
+          if ! git diff --staged --quiet; then
+            git commit -m "Sync demo-repository -> libs/demo-repository [ci skip]" || true
+            git push origin HEAD:main
+          else
+            echo "No hay cambios para commitear."
+          fi
