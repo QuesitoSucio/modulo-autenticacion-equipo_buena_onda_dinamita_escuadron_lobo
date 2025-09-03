@@ -1,5 +1,8 @@
-# Vue 3 + Vite
+![Image](https://github.com/user-attachments/assets/3536ee83-86b0-4960-85da-99181555476d)
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Una pagina web con registro de usuarios, estática y validación de inicio mediante generación de tokens almacenados en el local store.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+**•	Objetivo del módulo.**
+**•	Lista de historias de usuario.**
+**•	Enlace al tablero de GitHub Projects.**
+**•	Integrantes del equipo y sus roles.**
