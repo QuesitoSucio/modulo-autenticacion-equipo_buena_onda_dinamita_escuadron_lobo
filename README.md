@@ -13,5 +13,5 @@ Una pagina web con registro de usuarios, estática y validación de inicio media
           
 **•	Enlace al tablero de GitHub Projects.**
 
-        LINK: 
+        LINK: https://github.com/users/QuesitoSucio/projects/5
 **•	Integrantes del equipo y sus roles.**
