@@ -1,30 +1,67 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="app-shell">
+    <div class="main-chart">
+      <Sidebar />
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script setup>
+import Sidebar from './components/Sidebar.vue'
+</script>
+
+<style>
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --sidebar: #242944;
+  --sidebar-2: #313753;
+  --primary: #6042ef;
+  --text: #242944;
+  --muted: #8a90a6;
+  --pill: #e9ecf8;
+  --shadow: 0 10px 25px rgba(20, 20, 43, 0.06);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+* {
+  box-sizing: border-box;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: #333;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  padding: 40px;
+  background-color: #d7d7d7;
+}
+
+.main-chart {
+  display: flex;
+  width: 100%;
+  background-color: white;
+  border-radius: 20px;
+}
+
+.main-content {
+  display: flex;
+  padding: 24px;
+  background-color: white;
+  width: 100%;
+  border-radius: 0 20px 20px 0;
 }
 </style>
