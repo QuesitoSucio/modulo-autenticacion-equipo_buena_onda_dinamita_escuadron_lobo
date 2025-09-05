@@ -20,8 +20,6 @@
           v-model="form.password" 
           type="password" 
           required
-          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$"
-          title="Debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo."
         />
       </div>
 
@@ -35,10 +33,6 @@
         <label for="terms">Acepto los <a href="#">términos y condiciones</a></label>
       </div>
 
-      <div class="form-group">
-        <div ref="recaptchaContainer"></div>
-      </div>
-
       <button type="submit" :disabled="isSubmitting">
         {{ isSubmitting ? 'Registrando...' : 'Registrarme' }}
       </button>
@@ -47,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive } from 'vue'
 
 const form = reactive({
   fullName: '',
@@ -59,11 +53,22 @@ const form = reactive({
 })
 
 const isSubmitting = ref(false)
-const recaptchaContainer = ref(null)
 
 const handleRegister = async () => {
   if (form.password !== form.confirmPassword) {
     alert('Las contraseñas no coinciden.')
+    return
+  }
+
+  try {
+    // Ejecutar reCAPTCHA v3 al enviar
+    const token = await window.grecaptcha.execute(
+      '6LeGpbkrAAAAAP_10tvF5Rg_0keRPhYu7p5nmMbJ',
+      { action: 'submit' }
+    )
+    form.recaptchaToken = token
+  } catch (e) {
+    alert('Error con reCAPTCHA ❌')
     return
   }
 
@@ -99,19 +104,6 @@ const handleRegister = async () => {
     isSubmitting.value = false
   }
 }
-// Cargar e inicializar reCAPTCHA al montar el componente, no me cambies el sitekey pls
-onMounted(() => {
-  if (window.grecaptcha) {
-    window.grecaptcha.ready(() => {
-      window.grecaptcha.render(recaptchaContainer.value, {
-        sitekey: '6LeGpbkrAAAAAP_10tvF5Rg_0keRPhYu7p5nmMbJ',
-        callback: (token) => {
-          form.recaptchaToken = token
-        }
-      })
-    })
-  }
-})
 </script>
 
 <style scoped>
