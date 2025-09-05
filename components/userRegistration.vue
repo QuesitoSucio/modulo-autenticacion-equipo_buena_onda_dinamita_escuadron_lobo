@@ -2,7 +2,6 @@
   <div class="register-container">
     <h2>Crear cuenta</h2>
     <form @submit.prevent="handleRegister">
-      
       <div class="form-group">
         <label for="fullName">Nombre completo</label>
         <input id="fullName" v-model="form.fullName" type="text" required />
@@ -47,7 +46,6 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import axios from 'axios';
 
 // Estado del formulario
 const form = reactive({
@@ -59,30 +57,18 @@ const form = reactive({
   recaptchaToken: null
 });
 
-// Errores
-const errors = reactive({
-  fullName: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-  termsAccepted: '',
-  recaptcha: ''
-});
-
-// Estado de envío
+// Lo de los errores
+const errors = reactive({});
 const isSubmitting = ref(false);
-
-// Referencia al contenedor de reCAPTCHA
 const recaptchaContainer = ref(null);
 
-// Lógica de validación
+// Logica de validacion
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const validatePassword = (password) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
 const validateForm = () => {
-  // Limpiar errores previos
-  Object.keys(errors).forEach(key => errors[key] = '');
-
+  Object.keys(errors).forEach(key => delete errors[key]);
+  
   let isValid = true;
 
   if (!form.fullName.trim()) {
@@ -113,7 +99,7 @@ const validateForm = () => {
   return isValid;
 };
 
-// Manejar el envío del formulario
+// para manejar el envío del formulario
 const handleRegister = async () => {
   if (!validateForm()) {
     return;
@@ -122,23 +108,45 @@ const handleRegister = async () => {
   isSubmitting.value = true;
   
   try {
-    const response = await axios.post('/api/register', form);
-    console.log('Registro exitoso:', response.data);
-    alert('¡Registro exitoso! ✅');
-    // para redirigir al usuario
-  } catch (error) {
-    if (error.response && error.response.status === 409) {
+    // obtener usuarios previos del localStorage y tambien si ya existe 
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+
+    if (users.some(u => u.email === form.email)) {
       errors.email = 'Este correo ya está registrado.';
-    } else {
-      console.error('Error al registrar:', error);
-      alert('Hubo un error al registrar. Inténtalo de nuevo. ❌');
+      isSubmitting.value = false;
+      return;
     }
+
+    const newUser = {
+      fullName: form.fullName,
+      email: form.email,
+      password: form.password,
+      termsAccepted: form.termsAccepted,
+      recaptchaToken: form.recaptchaToken
+    };
+    users.push(newUser);
+
+    localStorage.setItem('users', JSON.stringify(users));
+
+    console.log('Registro exitoso:', newUser);
+    alert('¡Registro exitoso! ✅');
+
+    form.fullName = '';
+    form.email = '';
+    form.password = '';
+    form.confirmPassword = '';
+    form.termsAccepted = false;
+    form.recaptchaToken = null;
+
+  } catch (error) {
+    console.error('Error de red o inesperado:', error);
+    alert('Hubo un error al registrar. Inténtalo de nuevo. ❌');
   } finally {
     isSubmitting.value = false;
   }
 };
 
-// Cargar e inicializar reCAPTCHA al montar el componente, TA AQUI
+// Cargar e inicializar reCAPTCHA al montar el componente, no me cambies el sitekey pls
 onMounted(() => {
   if (window.grecaptcha) {
     window.grecaptcha.ready(() => {
@@ -146,7 +154,7 @@ onMounted(() => {
         sitekey: '6LeGpbkrAAAAAP_10tvF5Rg_0keRPhYu7p5nmMbJ',
         callback: (token) => {
           form.recaptchaToken = token;
-          errors.recaptcha = '';
+          delete errors.recaptcha;
         }
       });
     });
