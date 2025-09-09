@@ -4,7 +4,7 @@
       <div class="profile">
         <img src="@/assets/henry-remove.png" alt="Profile" class="avatar" />
         <div class="pinfo">
-          <div class="pname">Filip Martin Jose</div>
+          <div class="pname">Filip Martin Jose</div><!--cambiar dato -con nombre de local-->
           <span class="plevel">Pro Level</span>
         </div>
       </div>
@@ -54,6 +54,10 @@
   </aside>
 </template>
 
+<script setup>
+
+</script>
+
 <style scoped>
 .sidebar {
   width: 350px;
@@ -64,7 +68,8 @@
   flex-direction: column;
   justify-content: space-between;
   border-radius: 20px;
-  border: 10px solid white;
+  border: 11px solid white;
+  border-right: 0;
 }
 
 .profile {
@@ -78,28 +83,19 @@
 
 .avatar {
   height: 80px;
-  width: 80px; 
+  width: 80px;
   border-radius: 50%;
-  overflow: hidden; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  object-fit: cover;
   background-color: white;
   margin-bottom: 10px;
   border: 1px solid black;
 }
 
-.avatar img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;  
-  object-position: center; 
-}
-
-
 .pname {
   color: #e6e9f5;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 1.2rem;
 }
 
 .plevel {
@@ -152,16 +148,15 @@
 .help {
   text-align: center;
   background: var(--sidebar-2);
-  border-radius: 14px;
+  border-radius: 0 0 14px 14px;
   padding: 16px;
   font-size: 14px;
   line-height: 1.4;
-  padding-top: 100%;
 }
 
 .help p {
-   background: var(--sidebar);
-   border-radius: 10px;
-   padding: 10px 0 10px 0;
+  background: var(--sidebar);
+  border-radius: 10px;
+  padding: 10px 0 10px 0;
 }
 </style>

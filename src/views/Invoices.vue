@@ -1,3 +1,3 @@
 <template>
-  <h1>Dashboard works!</h1>
+    <div style="padding:16px">Hola Invoices, No hay nada para mostrar. 👋</div>
 </template>

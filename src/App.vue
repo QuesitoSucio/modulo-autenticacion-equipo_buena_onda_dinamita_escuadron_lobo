@@ -59,9 +59,9 @@ body {
 
 .main-content {
   display: flex;
-  padding: 24px;
+  padding: 12px 12px 12px 0;
   background-color: white;
   width: 100%;
-  border-radius: 0 20px 20px 0;
+  border-radius: 20px
 }
 </style>
