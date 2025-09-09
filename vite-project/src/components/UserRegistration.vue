@@ -1,9 +1,6 @@
 <template>
   <div v-if="visible" class="modal-overlay">
     <div class="modal">
-      <div v-if="notification.visible" :class="['notification-bar', notification.type]">
-        {{ notification.message }}
-      </div>
       <div class="modal-header">
         <h2>Crear cuenta</h2>
         <button @click="$emit('close')" class="close-btn">×</button>
@@ -24,7 +21,12 @@
           </div>
           <div class="form-group">
             <label for="password">Contraseña</label>
-            <input id="password" v-model="form.password" type="password" required />
+            <input 
+              id="password" 
+              v-model="form.password" 
+              type="password" 
+              required
+            />
           </div>
           <div class="form-group">
             <label for="confirmPassword">Confirmar contraseña</label>
@@ -48,7 +50,8 @@
 
 <script setup>
 import { ref, reactive, onMounted, defineProps, defineEmits } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
+import Swal from 'sweetalert2'
 
 const props = defineProps({
   visible: {
@@ -56,59 +59,56 @@ const props = defineProps({
     required: true
   }
 })
+const router=useRoute()
 
-const router = useRouter()
 const emit = defineEmits(['close'])
 
 const form = reactive({
   fullName: '',
   email: '',
-  confirmEmail: '',
+  confirmEmail:'',
   password: '',
   confirmPassword: '',
   termsAccepted: false,
   recaptchaToken: null
 })
 
-const notification = reactive({
-  visible: false,
-  message: '',
-  type: ''
-})
-
-const showNotification = (message, type) => {
-  notification.visible = true
-  notification.message = message
-  notification.type = type
-  setTimeout(() => {
-    notification.visible = false
-  }, 4000)
-}
-
 const isSubmitting = ref(false)
-const recaptchaContainer = ref(null)
+const recaptchaContainer = ref(null);
+let recaptchaRendered = false;
 
 const handleRegister = async () => {
   if (form.email !== form.confirmEmail) {
-    showNotification('Los correos electrónicos no coinciden.', 'error')
+    Swal.fire({
+      icon: 'error',
+      title: 'Correos no coinciden',
+      text: 'Verifica que ambos correos sean iguales',
+      confirmButtonColor: '#0077b6'
+    })
     return
   }
 
   if (form.password !== form.confirmPassword) {
-    showNotification('Las contraseñas no coinciden.', 'error')
-    return
-  }
-
-  if (!form.recaptchaToken) {
-    showNotification('Por favor, confirma el reCAPTCHA.', 'error')
+    Swal.fire({
+      icon: 'error',
+      title: 'Contraseñas no coinciden',
+      text: 'Debes ingresar la misma contraseña en ambos campos',
+      confirmButtonColor: '#0077b6'
+    })
     return
   }
 
   isSubmitting.value = true
   try {
     let users = JSON.parse(localStorage.getItem('users')) || []
+
     if (users.some(u => u.email === form.email)) {
-      showNotification('Este correo ya está registrado.', 'error')
+      Swal.fire({
+        icon: 'warning',
+        title: 'Correo ya registrado',
+        text: 'Intenta con otro correo electrónico',
+        confirmButtonColor: '#0077b6'
+      })
       isSubmitting.value = false
       return
     }
@@ -117,9 +117,16 @@ const handleRegister = async () => {
     users.push(newUser)
     localStorage.setItem('users', JSON.stringify(users))
 
-    showNotification('¡Registro exitoso! ✅', 'success')
+    Swal.fire({
+      icon: 'success',
+      title: '¡Registro exitoso!',
+      text: 'Tu cuenta ha sido creada correctamente',
+      confirmButtonColor: '#0077b6'
+    }).then(() => {
+      router.push('/')
+      emit('close')
+    })
 
-    // limpiar formulario
     form.fullName = ''
     form.email = ''
     form.confirmEmail = ''
@@ -128,46 +135,28 @@ const handleRegister = async () => {
     form.termsAccepted = false
     form.recaptchaToken = null
 
-    emit('close')
-    router.push('/menu')
   } catch (error) {
-    console.error('Error durante el registro:', error)
-    showNotification('Hubo un error al registrar. ❌', 'error')
+    Swal.fire({
+      icon: 'error',
+      title: 'Error en el registro',
+      text: 'Hubo un problema al registrar tu cuenta',
+      confirmButtonColor: '#0077b6'
+    })
   } finally {
     isSubmitting.value = false
   }
 }
 
-window.onRecaptchaSuccess = function (token) {
-  console.log('✅ reCAPTCHA completado. Token:', token)
-  form.recaptchaToken = token
-}
-
 onMounted(() => {
-  if (!document.getElementById('recaptcha-script')) {
-    const script = document.createElement('script')
-    script.id = 'recaptcha-script'
-    script.src =
-      'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit'
-    script.async = true
-    script.defer = true
-    document.head.appendChild(script)
-  } else {
-    if (window.grecaptcha && recaptchaContainer.value) {
+  if (window.grecaptcha) {
+    window.grecaptcha.ready(() => {
       window.grecaptcha.render(recaptchaContainer.value, {
         sitekey: '6LeGpbkrAAAAAP_10tvF5Rg_0keRPhYu7p5nmMbJ',
-        callback: window.onRecaptchaSuccess
+        callback: (token) => {
+          form.recaptchaToken = token
+        }
       })
-    }
-  }
-
-  window.onRecaptchaLoad = () => {
-    if (recaptchaContainer.value) {
-      window.grecaptcha.render(recaptchaContainer.value, {
-        sitekey: '6LeGpbkrAAAAAP_10tvF5Rg_0keRPhYu7p5nmMbJ',
-        callback: window.onRecaptchaSuccess
-      })
-    }
+    })
   }
 })
 </script>
@@ -175,110 +164,106 @@ onMounted(() => {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.8);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 50, 0.6);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 999;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal {
-  background: #ffffff !important; /* ← blanco forzado */
-  border-radius: 16px;
-  padding: 24px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  animation: fadeIn 0.3s ease;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  border-bottom: 2px solid #0077b6;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .modal-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
+  color: #003366;
+  font-size: 1.4rem;
+  font-weight: bold;
 }
 
 .close-btn {
-  background: transparent;
+  background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #6b7280;
+  color: #003366;
+  transition: transform 0.2s ease;
 }
 .close-btn:hover {
-  color: #111827;
+  color: #0077b6;
 }
 
-.modal input[type="text"],
-.modal input[type="email"],
-.modal input[type="password"] {
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: #003366;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
   width: 100%;
   padding: 10px;
-  margin: 6px 0 14px 0;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #f9fafb;
-  transition: all 0.2s ease;
-}
-.modal input:focus {
-  border-color: #6366f1;
-  background: #fff;
+  border: 1px solid #90e0ef;
+  border-radius: 6px;
   outline: none;
+  transition: border-color 0.3s ease;
+}
+input:focus {
+  border-color: #0077b6;
+  box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
 }
 
 .checkbox-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+}
+.checkbox-group label {
+  margin-left: 8px;
   font-size: 0.9rem;
-  color: #374151;
 }
 
-.modal button {
-  background: #6366f1;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
+button {
   width: 100%;
-  font-weight: 600;
+  padding: 12px;
+  background-color: #0077b6;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
-.modal button:hover {
-  background: #4f46e5;
+button:hover {
+  background-color: #005f8a;
 }
-.modal button:disabled {
-  background: #9ca3af;
+button:disabled {
+  background-color: #90e0ef;
   cursor: not-allowed;
 }
-
-.notification-bar {
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-weight: 500;
-}
-.notification-bar.success {
-  background: #d1fae5;
-  color: #065f46;
-}
-.notification-bar.error {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
 </style>
+
