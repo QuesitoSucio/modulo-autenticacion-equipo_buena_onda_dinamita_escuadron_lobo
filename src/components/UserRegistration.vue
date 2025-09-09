@@ -18,7 +18,6 @@
           <div class="form-group">
             <label for="confirmEmail">Confirmar correo electrónico</label>
             <input id="confirmEmail" v-model="form.confirmEmail" type="email" required />
-            
           </div>
           <div class="form-group">
             <label for="password">Contraseña</label>
@@ -29,7 +28,6 @@
               required
             />
           </div>
-          
           <div class="form-group">
             <label for="confirmPassword">Confirmar contraseña</label>
             <input id="confirmPassword" v-model="form.confirmPassword" type="password" required />
@@ -53,6 +51,8 @@
 <script setup>
 import { ref, reactive, onMounted, defineProps, defineEmits } from 'vue'
 import { useRoute } from 'vue-router'
+import Swal from 'sweetalert2'
+
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -78,50 +78,70 @@ const recaptchaContainer = ref(null);
 let recaptchaRendered = false;
 
 const handleRegister = async () => {
-
   if (form.email !== form.confirmEmail) {
-    form.confirmEmail = 'Los correos electrónicos no coinciden.';
-    return;
-  } else {
-    form.confirmEmail = ''; // Limpiar el error si coinciden
-  }
-
-  if (form.password !== form.confirmPassword) {
-    alert('Las contraseñas no coinciden.')
+    Swal.fire({
+      icon: 'error',
+      title: 'Correos no coinciden',
+      text: 'Verifica que ambos correos sean iguales',
+      confirmButtonColor: '#0077b6'
+    })
     return
   }
 
-  if (!form.recaptchaToken) {
-    alert('Por favor, confirma el reCAPTCHA.')
+  if (form.password !== form.confirmPassword) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Contraseñas no coinciden',
+      text: 'Debes ingresar la misma contraseña en ambos campos',
+      confirmButtonColor: '#0077b6'
+    })
     return
   }
 
   isSubmitting.value = true
   try {
     let users = JSON.parse(localStorage.getItem('users')) || []
-
-    if (users.some(u => u.email === form.email)) {//revisar existencia 
-      alert('Este correo ya está registrado.')//cambiar alert
+    console.log(users)
+    if (users.some(u => u.email === form.email)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Correo ya registrado',
+        text: 'Intenta con otro correo electrónico',
+        confirmButtonColor: '#0077b6'
+      })
       isSubmitting.value = false
       return
     }
 
     const newUser = { ...form }
     users.push(newUser)
-    localStorage.setItem('users', JSON.stringify(users))//actualizar usuario
+    localStorage.setItem('users', JSON.stringify(users))
 
-    alert('¡Registro exitoso! ✅')
-    router.push('/')//redireccion 
+    Swal.fire({
+      icon: 'success',
+      title: '¡Registro exitoso!',
+      text: 'Tu cuenta ha sido creada correctamente',
+      confirmButtonColor: '#0077b6'
+    }).then(() => {
+      
+      emit('close')
+    })
+
     form.fullName = ''
     form.email = ''
+    form.confirmEmail = ''
     form.password = ''
     form.confirmPassword = ''
     form.termsAccepted = false
     form.recaptchaToken = null
-    emit('close')
 
   } catch (error) {
-    alert('Hubo un error al registrar. ❌')
+    Swal.fire({
+      icon: 'error',
+      title: 'Error en el registro',
+      text: 'Hubo un problema al registrar tu cuenta',
+      confirmButtonColor: '#0077b6'
+    })
   } finally {
     isSubmitting.value = false
   }
@@ -148,7 +168,7 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 50, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -156,12 +176,12 @@ onMounted(() => {
 }
 
 .modal {
-  background: rgb(85, 62, 62);
-  padding: 20px;
-  border-radius: 8px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
   max-width: 500px;
   width: 90%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
@@ -169,9 +189,15 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 2px solid #0077b6;
   padding-bottom: 10px;
   margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  color: #003366;
+  font-size: 1.4rem;
+  font-weight: bold;
 }
 
 .close-btn {
@@ -179,13 +205,64 @@ onMounted(() => {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+  color: #003366;
+  transition: transform 0.2s ease;
+}
+.close-btn:hover {
+  color: #0077b6;
 }
 
 .form-group {
   margin-bottom: 15px;
 }
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: #003366;
+  font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #90e0ef;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+input:focus {
+  border-color: #0077b6;
+  box-shadow: 0 0 4px rgba(0, 119, 182, 0.5);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+.checkbox-group label {
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
 button {
   width: 100%;
   padding: 12px;
+  background-color: #0077b6;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #005f8a;
+}
+button:disabled {
+  background-color: #90e0ef;
+  cursor: not-allowed;
 }
 </style>
