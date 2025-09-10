@@ -164,7 +164,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-top: 17px;
 }
 
 .titulo-saludo {
@@ -208,7 +208,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1.8fr;
   gap: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 43px;
 }
 
 .tarjeta-ganancias,
@@ -370,6 +370,7 @@
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 2rem;
+  margin-top: 60px;
 }
 
 .seccion-izquierda,
