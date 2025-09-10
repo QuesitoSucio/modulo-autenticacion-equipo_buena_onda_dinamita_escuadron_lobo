@@ -46,7 +46,7 @@ body {
 .app-shell {
   display: flex;
   min-height: 100vh;
-  padding: 40px;
+  padding: 30px;
   background-color: #d7d7d7;
 }
 
@@ -55,6 +55,7 @@ body {
   width: 100%;
   background-color: white;
   border-radius: 20px;
+  height: fit-content;
 }
 
 .main-content {

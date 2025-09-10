@@ -70,6 +70,7 @@
   border-radius: 20px;
   border: 11px solid white;
   border-right: 0;
+  height: 90%
 }
 
 .profile {
@@ -109,6 +110,7 @@
   display: flex;
   justify-self: center;
   width: fit-content;
+  cursor: pointer;
 }
 
 .nav {
