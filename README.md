@@ -13,11 +13,11 @@ Se buscó no solo lograr el funcionamiento técnico, sino también aplicar buena
 
 • Lista de historias de usuario.
 
-Como usuario nuevo quiero registrarme con mi correo y contraseña para crear una cuenta en la aplicación.
+  - Como usuario nuevo quiero registrarme con mi correo y contraseña para crear una cuenta en la aplicación.
 
-Como usuario registrado quiero iniciar sesión con mi correo y contraseña para acceder al dashboard de la aplicación.
+  - Como usuario registrado quiero iniciar sesión con mi correo y contraseña para acceder al dashboard de la aplicación.
 
-Como usuario autenticado quiero mantener mi sesión activa mediante un token almacenado en el Local Storage para no tener que iniciar sesión cada vez.
+  - Como usuario autenticado quiero mantener mi sesión activa mediante un token almacenado en el Local Storage para no tener que iniciar sesión cada vez.
 
 Cada historia de usuario fue pensada para cubrir una parte fundamental del flujo de autenticación: primero el registro, luego el inicio de sesión y finalmente la persistencia de la sesión para mejorar la experiencia del usuario.
 
